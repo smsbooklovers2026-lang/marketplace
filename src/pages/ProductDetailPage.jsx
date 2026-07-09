@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, ShoppingCart, Zap, Heart, Share2, ShieldCheck, Truck, RefreshCw, ChevronRight, Minus, Plus } from 'lucide-react';
-import { products } from '../data/products';
+import { useProducts } from '../hooks/useProducts';
 import { useCart } from '../context/CartContext';
 import ProductCard from '../components/ProductCard';
 
@@ -9,6 +9,7 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { products } = useProducts();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
   const [added, setAdded] = useState(false);
@@ -24,7 +25,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 6);
+  const related = products.filter(p => p.category === product?.category && p.id !== product?.id).slice(0, 6);
   const savings = product.originalPrice - product.price;
 
   const handleAddToCart = () => {

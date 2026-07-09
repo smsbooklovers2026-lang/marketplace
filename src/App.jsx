@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -25,7 +26,8 @@ function Layout({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <CartProvider>
+      <AuthProvider>
+        <CartProvider>
         <Routes>
           {/* Auth pages - no navbar/footer */}
           <Route path="/login" element={<LoginPage />} />
@@ -40,7 +42,8 @@ export default function App() {
           <Route path="/product/:id" element={<Layout><ProductDetailPage /></Layout>} />
           <Route path="/cart" element={<Layout><CartPage /></Layout>} />
         </Routes>
-      </CartProvider>
+        </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

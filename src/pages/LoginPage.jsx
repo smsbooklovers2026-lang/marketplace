@@ -1,27 +1,26 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!email || !password) {
-      setError('Please fill in all fields.');
-      return;
-    }
+    if (!email || !password) { setError('Please fill in all fields.'); return; }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate('/');
-    }, 1200);
+    const { error: err } = await signIn(email, password);
+    setLoading(false);
+    if (err) { setError(err.message); return; }
+    navigate('/');
   };
 
   return (

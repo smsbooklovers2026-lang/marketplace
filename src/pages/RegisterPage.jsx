@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [successMsg, setSuccessMsg] = useState('');
 
   const validate = () => {
     const errs = {};
@@ -26,18 +29,15 @@ export default function RegisterPage() {
     setErrors(err => ({ ...err, [field]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      return;
-    }
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate('/');
-    }, 1500);
+    const { error } = await signUp(form.email, form.password, form.name, form.phone);
+    setLoading(false);
+    if (error) { setErrors({ email: error.message }); return; }
+    setSuccessMsg('Account created! Check your email to confirm, then sign in.');
   };
 
   const passwordStrength = form.password.length === 0 ? 0
@@ -88,6 +88,13 @@ export default function RegisterPage() {
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-1">Create account</h2>
             <p className="text-gray-500 text-sm mb-5">Sign up to start shopping</p>
+
+            {successMsg && (
+              <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-3 py-3 rounded-lg mb-4 flex items-start gap-2">
+                <CheckCircle2 size={16} className="mt-0.5 flex-shrink-0" />
+                <span>{successMsg}</span>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}

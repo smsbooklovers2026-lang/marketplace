@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { SlidersHorizontal, ChevronDown, X, Star } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { products, categories } from '../data/products';
+import { categories } from '../data/products';
+import { useProducts } from '../hooks/useProducts';
 
 const SORT_OPTIONS = [
   { value: 'relevance', label: 'Relevance' },
@@ -17,6 +18,7 @@ export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const categoryFilter = searchParams.get('category') || '';
+  const { products } = useProducts();
 
   const [sort, setSort] = useState('relevance');
   const [selectedCategory, setSelectedCategory] = useState(categoryFilter);

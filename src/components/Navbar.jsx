@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, Menu, X, User, ChevronDown, MapPin } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, User, ChevronDown, MapPin, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { totalItems } = useCart();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSearch = (e) => {
@@ -14,6 +17,12 @@ export default function Navbar() {
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUserMenuOpen(false);
+    navigate('/');
   };
 
   return (
@@ -93,10 +102,47 @@ export default function Navbar() {
               )}
               <span className="text-xs mt-0.5">Cart</span>
             </Link>
-            <Link to="/login" className="flex flex-col items-center hover:text-green-200 transition-colors">
-              <User size={24} />
-              <span className="text-xs mt-0.5">Account</span>
-            </Link>
+
+            {/* User menu */}
+            <div className="relative">
+              {user ? (
+                <button
+                  onClick={() => setUserMenuOpen(o => !o)}
+                  className="flex flex-col items-center hover:text-green-200 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-full bg-white text-green-700 font-bold text-xs flex items-center justify-center">
+                    {(profile?.name || user.email || 'U')[0].toUpperCase()}
+                  </div>
+                  <span className="text-xs mt-0.5 max-w-[60px] truncate">{profile?.name?.split(' ')[0] || 'Account'}</span>
+                </button>
+              ) : (
+                <Link to="/login" className="flex flex-col items-center hover:text-green-200 transition-colors">
+                  <User size={24} />
+                  <span className="text-xs mt-0.5">Account</span>
+                </Link>
+              )}
+
+              {userMenuOpen && user && (
+                <div className="absolute right-0 top-12 w-48 bg-white rounded-xl shadow-xl border z-50 text-gray-700 text-sm overflow-hidden">
+                  <div className="px-4 py-3 border-b bg-green-50">
+                    <p className="font-semibold text-gray-800 truncate">{profile?.name || 'User'}</p>
+                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                  </div>
+                  <Link to="/cart" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 transition-colors">
+                    <ShoppingCart size={14} /> My Cart
+                  </Link>
+                  {profile?.role === 'admin' && (
+                    <Link to="/admin" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 transition-colors text-green-700 font-medium">
+                      🛡 Admin Panel
+                    </Link>
+                  )}
+                  <button onClick={handleSignOut} className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-red-50 text-red-500 transition-colors">
+                    <LogOut size={14} /> Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+
             <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
               {menuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>

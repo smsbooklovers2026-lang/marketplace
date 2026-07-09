@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Timer, ShieldCheck, Truck, RefreshCw, Headphones } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import { products, categories, flashDeals } from '../data/products';
+import { categories } from '../data/products';
+import { useProducts } from '../hooks/useProducts';
 
 const banners = [
   {
@@ -65,6 +66,8 @@ function FlashDealTimer() {
 
 export default function HomePage() {
   const [currentBanner, setCurrentBanner] = useState(0);
+  const { products, loading } = useProducts();
+  const flashDeals = products.filter(p => p.isFlashDeal);
 
   useEffect(() => {
     const timer = setInterval(() => {
